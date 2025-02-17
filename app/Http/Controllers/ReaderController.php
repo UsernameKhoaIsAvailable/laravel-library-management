@@ -52,4 +52,11 @@ class ReaderController extends Controller
 
         return redirect()->route('readers.index')->with('success', 'Reader deleted successfully!');
     }
+
+    public function search(Request $request)
+    {
+        $search = $request->input('search');
+        $readers = Reader::simpleSearch($search)->get();
+        return view('readers', compact('readers'));
+    }
 }

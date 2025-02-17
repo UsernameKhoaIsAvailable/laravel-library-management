@@ -7,7 +7,13 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="flex justify-end mb-4">
+            <div class="flex justify-between mb-4">
+                <form class="flex px-1" action="{{ route('readers.search') }}" method="get">
+                    <x-text-input id="search" name="search" type="text" class="w-full" placeholder="Search..." required />
+                    <x-primary-button>
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </x-primary-button>
+                </form>
                 <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'add-reader')">
                     <i class="fa-solid fa-plus"></i>
                 </x-primary-button>
@@ -81,8 +87,8 @@
                     </div>
 
                     <div class="mt-6">
-                        <x-input-label for="gender" :value="__('Gender')" /> 
-                        <div class="mt-2"> 
+                        <x-input-label for="gender" :value="__('Gender')" />
+                        <div class="mt-2">
                             <div class="flex items-center">
                                 <input id="male" name="gender" type="radio" value="1" {{ $reader->gender == 1 ? 'checked' : '' }} required
                                     class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
@@ -90,7 +96,7 @@
                                     Male
                                 </label>
                             </div>
-                            <div class="flex items-center mt-2"> 
+                            <div class="flex items-center mt-2">
                                 <input id="female" name="gender" type="radio" value="0" {{ $reader->gender == 0 ? 'checked' : '' }} required
                                     class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
                                 <label for="female" class="ml-3 block text-sm font-medium text-gray-700">
@@ -105,7 +111,7 @@
 
                     <div class="mt-6">
                         <x-input-label for="dob" :value="__('Date of Birth')" />
-                        <x-text-input id="dob" name="dob" type="date" 
+                        <x-text-input id="dob" name="dob" type="date"
                             class="mt-1 block w-full"
                             value="{{ old('dob', $reader->dob->format('Y-m-d')) }}"
                             required />
@@ -151,8 +157,8 @@
                     </div>
 
                     <div class="mt-6">
-                        <x-input-label for="gender" :value="__('Gender')" /> 
-                        <div class="mt-2"> 
+                        <x-input-label for="gender" :value="__('Gender')" />
+                        <div class="mt-2">
                             <div class="flex items-center">
                                 <input id="male" name="gender" type="radio" value="1" required
                                     class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
@@ -160,7 +166,7 @@
                                     Male
                                 </label>
                             </div>
-                            <div class="flex items-center mt-2"> 
+                            <div class="flex items-center mt-2">
                                 <input id="female" name="gender" type="radio" value="0" required
                                     class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
                                 <label for="female" class="ml-3 block text-sm font-medium text-gray-700">
@@ -175,14 +181,14 @@
 
                     <div class="mt-6">
                         <x-input-label for="dob" :value="__('Date of Birth')" />
-                        <x-text-input id="dob" name="dob" type="date" 
+                        <x-text-input id="dob" name="dob" type="date"
                             class="mt-1 block w-full"
                             required />
                         @error('dob')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-                    
+
                     <div class="mt-6">
                         <x-input-label for="id_number" :value="__('Id number')" />
                         <x-text-input id="id_number" name="id_number" type="text" class="mt-1 block w-full" required autofocus autocomplete="id_number" />

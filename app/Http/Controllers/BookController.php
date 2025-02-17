@@ -11,7 +11,7 @@ class BookController extends Controller
     public function index()
     {
         $books = Book::all(); // Or paginate: Title::paginate(10);
-        return view('books', compact('books')); 
+        return view('books', compact('books'));
     }
 
     public function store(Request $request)
@@ -22,7 +22,7 @@ class BookController extends Controller
                 'category' => 'nullable|string|max:255',
                 'author' => 'nullable|string|max:255',
                 'language' => 'nullable|string|max:255',
-                'quantity' => 'required|integer|min:0', 
+                'quantity' => 'required|integer|min:0',
             ]);
 
 
@@ -30,11 +30,9 @@ class BookController extends Controller
             $book = Book::create($validatedData);
 
             return redirect()->route('books.index')->with('success', 'Book created successfully.');
-
         } catch (ValidationException $e) {
-            return redirect()->back()->withErrors($e->errors())->withInput(); 
+            return redirect()->back()->withErrors($e->errors())->withInput();
         }
-
     }
 
     public function update(Request $request, Book $book)
@@ -45,13 +43,12 @@ class BookController extends Controller
                 'category' => 'nullable|string|max:255',
                 'author' => 'nullable|string|max:255',
                 'language' => 'nullable|string|max:255',
-                'quantity' => 'required|integer|min:0', 
+                'quantity' => 'required|integer|min:0',
             ]);
 
             $book->update($validatedData);
 
             return redirect()->route('books.index')->with('success', 'Book updated successfully.');
-
         } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();
         }
@@ -61,5 +58,12 @@ class BookController extends Controller
     {
         $book->delete();
         return redirect()->route('books.index')->with('success', 'Book deleted successfully.');
+    }
+
+    public function search(Request $request)
+    {
+        $search = $request->input('search');
+        $books = Book::simpleSearch($search)->get();
+        return view('books', compact('books'));
     }
 }

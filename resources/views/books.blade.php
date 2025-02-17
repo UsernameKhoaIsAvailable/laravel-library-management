@@ -7,7 +7,13 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="flex justify-end mb-4">
+            <div class="flex justify-between mb-4">
+                <form class="flex px-1" action="{{ route('books.search') }}" method="get">
+                    <x-text-input id="search" name="search" type="text" class="w-full" placeholder="Search..." required />
+                    <x-primary-button>
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </x-primary-button>
+                </form>
                 <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'add-book')">
                     <i class="fa-solid fa-plus"></i>
                 </x-primary-button>
