@@ -7,196 +7,138 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            {{--<div class="flex justify-end mb-4">
-                <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'add-reader')">
+            <div class="flex justify-between mb-4">
+                <form class="flex px-1" action="" method="get">
+                    <x-text-input id="search" name="search" type="text" class="w-full" placeholder="Coming soon..."
+                        required disabled />
+                    <x-primary-button disabled>
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </x-primary-button>
+                </form>
+                <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'add-transaction')">
                     <i class="fa-solid fa-plus"></i>
                 </x-primary-button>
-            </div>--}}
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("Coming soon...") }}
-                </div>
             </div>
-            @foreach ($transactions as $transaction)
-            <div class="border border-gray-200 rounded mb-4">
-                <div class="bg-gray-100 px-4 py-2 flex justify-between items-center cursor-pointer" data-transaction-id="{{ $transaction->id }}">
-                    <div class="font-bold">Transaction #{{ $transaction->id }}
-                        <span class="bg-blue-200 text-blue-800 px-2 py-1 rounded ml-2">{{ $transaction->reader->name }}</span>
+            <div class="accordion accordion-shadow">
+                @foreach ($transactions as $transaction)
+                    <div class="accordion-item" id="{{ $transaction->id }}">
+                        <button class="accordion-toggle flex items-center gap-x-4 text-start justify-between"
+                            aria-controls="payment-nested-collapse" aria-expanded="false">
+                            <div class="inline-flex gap-x-4 items-center">
+                                <span
+                                    class="icon-[tabler--chevron-right] accordion-item-active:rotate-90 size-5 shrink-0 transition-transform duration-300 rtl:rotate-180"></span>
+                                <div class="font-bold">#{{ $transaction->id }}
+                                    <span
+                                        class="bg-blue-200 text-blue-800 px-2 py-1 rounded ml-2">{{ $transaction->reader == null ? 'N/A' : $transaction->reader->name }}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <span
+                                    class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded">{{ $transaction->number_of_transaction_lines }}
+                                    books</span>
+                                <span
+                                    class="bg-gray-200 text-gray-800 px-2 py-1 rounded">{{ $transaction->borrow_date->format('Y-m-d') }}</span>
+                                @if ($transaction->is_completed == 1)
+                                    <span class="bg-green-200 text-green-800 px-2 py-1 rounded mr-2">Completed</span>
+                                @endif
+                            </div>
+                        </button>
+                        <div id="{{ (string) $transaction->id . '-nested' }}"
+                            class="accordion-content hidden w-full overflow-hidden transition-[height] duration-300"
+                            aria-labelledby="payment-nested" role="region">
+                            <div class="accordion accordion-shadow ps-6">
+                                <form action="{{ route('transactions.updatee') }}" method="post">
+                                    @csrf
+                                    @method('PUT')
+                                    @foreach ($transaction->transactionLines as $line)
+                                        <div class="accordion-item">
+                                            <div class="accordion-toggle flex items-center text-start gap-x-4 justify-between">
+                                                <div class="flex items-center gap-2">
+                                                    <input type="checkbox" class="checkbox checkbox-primary" name="lines[]"
+                                                        value="{{ $line->id }}" id="{{ 'box' . (string) $line->id }}" {{ $line->is_completed == 1 ? 'disabled' : '' }} />
+                                                    <label for="{{ 'box' . (string) $line->id }}">
+                                                        {{ $line->book == null ? 'N/A' : $line->book->name }}</label>
+                                                </div>
+                                                @if ($line->is_completed == 1)
+                                                    <span class="bg-green-200 text-green-800 px-2 py-1 rounded mr-2">
+                                                        Returned
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                    @if ($transaction->is_completed == 0)
+                                        <div>
+                                            <div class="accordion-toggle flex items-center gap-x-2 justify-end">
+                                                <x-success-button class="mr-2">
+                                                    <i class="fa-solid fa-check" style="color: #63E6BE;"></i>
+                                                </x-success-button>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </form>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <span class="bg-gray-200 text-gray-800 px-2 py-1 rounded mr-2">{{ $transaction->borrow_date }}</span>
-                        <span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded">Lines: {{ $transaction->number_of_transaction_lines }}</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6" id="icon-{{ $transaction->id }}">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                        </svg>
-
-                    </div>
-                </div>
-                <div class="px-4 py-2 hidden" data-transaction-id="{{ $transaction->id }}">
-                    <div class="overflow-x-auto">
-                        @foreach ($transaction->transactionLines as $line)
-                        <li class="mb-2"> <span class="font-bold">Line ID:</span> {{ $line->id }}<br>
-                            <span class="font-bold">Book:</span> {{ $line->book->name ?? 'N/A' }}<br>
-                        </li>
-                        @endforeach
-                    </div>
-                    {{-- }}
-                    <div class="mt-4 flex justify-end">
-                        <a href="{{ route('transactions.edit', $transaction) }}" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mr-2">Edit</a>
-                        <form action="{{ route('transactions.destroy', $transaction) }}" method="POST" style="display: inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onclick="return confirm('Are you sure?')">Delete</button>
-                        </form>
-                    </div>--}}
-                </div>
+                @endforeach
             </div>
-            @endforeach
-            <script>
-                const panels = document.querySelectorAll('.border');
-
-                panels.forEach(panel => {
-                    const heading = panel.querySelector('.bg-gray-100');
-                    const body = panel.querySelector('.px-4.py-2.hidden');
-                    const icon = panel.querySelector(`#icon-${panel.dataset.transactionId}`);
-
-                    heading.addEventListener('click', () => {
-                        body.classList.toggle('hidden');
-                        if (icon.innerHTML.includes("M19 9l-7 7-7-7")) {
-                            icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />`;
-                        } else {
-                            icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />`;
-                        }
-
-                    });
-                });
-            </script>
-
-            {{--@foreach ($readers as $index=>$reader)
-            <x-modal name="{{'reader'.(string)$index}}">
-            <form method="post" action="{{ route('readers.update', $reader)}}" class="p-6">
-                @csrf
-                @method('PUT')
-                <h2 class="text-lg font-medium text-gray-900">
-                    {{ __('Update reader') }}
-                </h2>
-
-                <div class="mt-6">
-                    <x-input-label for="name" :value="__('Name')" />
-                    <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $reader->name)" required autofocus autocomplete="name" />
+            <div>
+                {{ $transactions->links() }}
+            </div>
+            @if ($transactions->isEmpty())
+                <div>
+                    <p class="text-center">No transaction found.</p>
                 </div>
+            @endif
 
-                <div class="mt-6">
-                    <x-input-label for="gender" :value="__('Gender')" />
-                    <div class="mt-2">
-                        <div class="flex items-center">
-                            <input id="male" name="gender" type="radio" value="1" {{ $reader->gender == 1 ? 'checked' : '' }} required
-                                class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
-                            <label for="male" class="ml-3 block text-sm font-medium text-gray-700">
-                                Male
-                            </label>
-                        </div>
-                        <div class="flex items-center mt-2">
-                            <input id="female" name="gender" type="radio" value="0" {{ $reader->gender == 0 ? 'checked' : '' }} required
-                                class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
-                            <label for="female" class="ml-3 block text-sm font-medium text-gray-700">
-                                Female
-                            </label>
-                        </div>
-                        @error('gender')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="mt-6">
-                    <x-input-label for="dob" :value="__('Date of Birth')" />
-                    <x-text-input id="dob" name="dob" type="date"
-                        class="mt-1 block w-full"
-                        value="{{ old('dob', $reader->dob->format('Y-m-d')) }}"
-                        required />
-                    @error('dob')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div class="mt-6">
-                    <x-input-label for="id_number" :value="__('Id number')" />
-                    <x-text-input id="id_number" name="id_number" type="text" class="mt-1 block w-full" :value="old('id_number', $reader->id_number)" required autofocus autocomplete="id_number" />
-                </div>
-
-                <div class="mt-6">
-                    <x-input-label for="address" :value="__('Address')" />
-                    <x-text-input id="address" name="address" type="text" class="mt-1 block w-full" :value="old('address', $reader->address)" required autofocus autocomplete="address" />
-                </div>
-
-                <div class="mt-6 flex justify-end">
-                    <x-secondary-button x-on:click="$dispatch('close')">
-                        {{ __('Cancel') }}
-                    </x-secondary-button>
-
-                    <x-primary-button class="ms-3">
-                        {{ __('Update') }}
-                    </x-primary-button>
-                </div>
-            </form>
-            </x-modal>
-            @endforeach
-
-            <x-modal name="add-reader">
-                <form method="post" action="{{ route('readers.store')}}" class="p-6">
+            <x-modal name="add-transaction">
+                <form method="post" action="{{ route('transactions.store')}}" class="p-6">
                     @csrf
 
                     <h2 class="text-lg font-medium text-gray-900">
-                        {{ __('Add new reader') }}
+                        {{ __('Add new transaction') }}
                     </h2>
 
                     <div class="mt-6">
-                        <x-input-label for="name" :value="__('Name')" />
-                        <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" required autofocus autocomplete="name" />
+                        <x-input-label for="reader" :value="__('Reader')" />
+                        <select id="reader" name="reader_id" required data-select='{
+      "placeholder": "Choose reader",
+      "toggleTag": "<button type=\"button\" aria-expanded=\"false\"></button>",
+      "toggleClasses": "advance-select-toggle",
+      "hasSearch": true,
+      "dropdownClasses": "advance-select-menu max-h-52 pt-0 vertical-scrollbar rounded-scrollbar",
+      "dropdownVerticalFixedPlacement": "bottom",
+      "dropdownScope": "outside",
+      "optionClasses": "advance-select-option selected:active",
+      "optionTemplate": "<div class=\"flex justify-between items-center w-full\"><span data-title></span><span class=\"icon-[tabler--check] flex-shrink-0 size-4 text-primary hidden selected:block \"></span></div>",
+      "extraMarkup": "<span class=\"flex-shrink-0 size-4 text-base-content absolute top-1/2 end-3 -translate-y-1/2 \"></span>"
+      }' class="hidden">
+                            <option value="">Choose reader</option>
+                            @foreach ($readers as $name => $id)
+                                <option value="{{ $id }}">{{ $name }}</option>
+                            @endforeach
+                        </select>
                     </div>
 
                     <div class="mt-6">
-                        <x-input-label for="gender" :value="__('Gender')" />
-                        <div class="mt-2">
-                            <div class="flex items-center">
-                                <input id="male" name="gender" type="radio" value="1" required
-                                    class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
-                                <label for="male" class="ml-3 block text-sm font-medium text-gray-700">
-                                    Male
-                                </label>
-                            </div>
-                            <div class="flex items-center mt-2">
-                                <input id="female" name="gender" type="radio" value="0" required
-                                    class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
-                                <label for="female" class="ml-3 block text-sm font-medium text-gray-700">
-                                    Female
-                                </label>
-                            </div>
-                            @error('gender')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="mt-6">
-                        <x-input-label for="dob" :value="__('Date of Birth')" />
-                        <x-text-input id="dob" name="dob" type="date"
-                            class="mt-1 block w-full"
-                            required />
-                        @error('dob')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="mt-6">
-                        <x-input-label for="id_number" :value="__('Id number')" />
-                        <x-text-input id="id_number" name="id_number" type="text" class="mt-1 block w-full" required autofocus autocomplete="id_number" />
-                    </div>
-
-                    <div class="mt-6">
-                        <x-input-label for="address" :value="__('Address')" />
-                        <x-text-input id="address" name="address" type="text" class="mt-1 block w-full" required autofocus autocomplete="address" />
+                        <x-input-label for="books" :value="__('Books')" />
+                        <select id="books" name="books[]" required multiple data-select='{
+      "placeholder": "Choose books",
+      "toggleTag": "<button type=\"button\" aria-expanded=\"false\"></button>",
+      "toggleClasses": "advance-select-toggle",
+      "hasSearch": true,
+      "dropdownClasses": "advance-select-menu max-h-52 pt-0 vertical-scrollbar rounded-scrollbar",
+      "dropdownVerticalFixedPlacement": "bottom",
+      "dropdownScope": "outside",
+      "optionClasses": "advance-select-option selected:active",
+      "optionTemplate": "<div class=\"flex justify-between items-center w-full\"><span data-title></span><span class=\"icon-[tabler--check] flex-shrink-0 size-4 text-primary hidden selected:block \"></span></div>",
+      "extraMarkup": "<span class=\"flex-shrink-0 size-4 text-base-content absolute top-1/2 end-3 -translate-y-1/2 \"></span>"
+      }' class="hidden">
+                            <option value="">Choose books</option>
+                            @foreach ($books as $name => $id)
+                                <option value="{{ $id }}">{{ $name }}</option>
+                            @endforeach
+                        </select>
                     </div>
 
                     <div class="mt-6 flex justify-end">
@@ -209,7 +151,7 @@
                         </x-primary-button>
                     </div>
                 </form>
-            </x-modal>--}}
+            </x-modal>
         </div>
     </div>
 </x-app-layout>

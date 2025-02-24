@@ -10,7 +10,7 @@ class BookController extends Controller
 {
     public function index()
     {
-        $books = Book::all(); // Or paginate: Title::paginate(10);
+        $books = Book::orderBy("name","asc")->paginate(10);
         return view('books', compact('books'));
     }
 
@@ -63,7 +63,8 @@ class BookController extends Controller
     public function search(Request $request)
     {
         $search = $request->input('search');
-        $books = Book::simpleSearch($search)->get();
+        $books = Book::simpleSearch($search)->orderBy("name","asc")->paginate(10);
+        $books->appends(['search' => $search]);
         return view('books', compact('books'));
     }
 }

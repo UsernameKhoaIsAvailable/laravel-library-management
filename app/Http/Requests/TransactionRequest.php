@@ -21,11 +21,12 @@ class TransactionRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'borrow_date' => 'required|date',
-            'number_of_transaction_lines' => 'required|integer|min:0',
+        $rules = [
+            'borrow_date' => 'date',
+            'number_of_transaction_lines' => 'integer|min:0',
             'is_complete' => 'boolean',
             'reader_id' => 'required|exists:readers,id',
         ];
+        return $rules;
     }
 }

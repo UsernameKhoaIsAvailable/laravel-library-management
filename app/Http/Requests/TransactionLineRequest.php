@@ -22,9 +22,7 @@ class TransactionLineRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'is_completed' => 'boolean',
-            'book_id' => 'required|exists:books,id',
-            'transaction_id' => 'required|exists:transactions,id',
+            'lines' => 'required|array',
         ];
     }
 }

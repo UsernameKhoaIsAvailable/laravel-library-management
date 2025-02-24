@@ -10,13 +10,13 @@ class Transaction extends Model
     protected $fillable = [
         'borrow_date',
         'number_of_transaction_lines',
-        'is_complete',
+        'is_completed',
         'reader_id',
     ];
 
     protected $casts = [
-        'borrow_date' => 'date', 
-        'is_complete' => 'boolean',
+        'borrow_date' => 'date',
+        'is_completed' => 'boolean',
     ];
 
     protected $attributes = [
@@ -28,8 +28,8 @@ class Transaction extends Model
         parent::boot();
 
         static::creating(function ($transaction) {
-            if ($transaction->borrow_date === null) {  // Only set if not already provided
-                $transaction->borrow_date = Carbon::now(); // Use Carbon to get current time
+            if ($transaction->borrow_date === null) {
+                $transaction->borrow_date = Carbon::now();
             }
         });
     }

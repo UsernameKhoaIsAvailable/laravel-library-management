@@ -10,8 +10,8 @@ class ReaderController extends Controller
 {
     public function index()
     {
-        $readers = Reader::all(); // Or paginate: Reader::paginate(10);
-        return view('readers', compact('readers')); // Create a view named index.blade.php
+        $readers = Reader::orderBy("name","asc")->paginate(10);
+        return view('readers', compact('readers'));
     }
 
     public function store(Request $request)
@@ -20,7 +20,7 @@ class ReaderController extends Controller
             'name' => 'required|string|max:255',
             'gender' => 'required|boolean',
             'dob' => 'required|date',
-            'id_number' => ['required', 'string', 'unique:readers', 'max:20'], // Unique ID
+            'id_number' => ['required', 'string', 'unique:readers', 'digits:10'],
             'address' => 'nullable|string',
             'number_of_books_borrowed' => 'nullable|integer',
         ]);
@@ -36,7 +36,7 @@ class ReaderController extends Controller
             'name' => 'required|string|max:255',
             'gender' => 'required|boolean',
             'dob' => 'required|date',
-            'id_number' => ['required', 'string', Rule::unique('readers')->ignore($reader->id), 'max:20'], // Unique, except for current reader
+            'id_number' => ['required', 'string', Rule::unique('readers')->ignore($reader->id), 'digits:10'],
             'address' => 'nullable|string',
             'number_of_books_borrowed' => 'nullable|integer',
         ]);
@@ -56,7 +56,8 @@ class ReaderController extends Controller
     public function search(Request $request)
     {
         $search = $request->input('search');
-        $readers = Reader::simpleSearch($search)->get();
+        $readers = Reader::simpleSearch($search)->orderBy("name","asc")->paginate(10);
+        $readers->appends(['search' => $search]);
         return view('readers', compact('readers'));
     }
 }
