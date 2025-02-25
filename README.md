@@ -1,6 +1,6 @@
 <h1>About my project</h1>
 <p>This is a library management system designed to provide libraries with a comprehensive and user-friendly platform to manage their collections, patrons, and circulation. The system allows librarians to catalog and track items, manage member, and streamline the borrowing and returning process.</p>
-<p>Detailed project documentation is <a href=''>here</a></p>
+<p>Detailed project documentation is <a href='https://docs.google.com/document/d/1v1J3ZtgCFlEJUo7Ao992A78vA8ZRISPx/edit?usp=sharing&ouid=103033347152129869442&rtpof=true&sd=true'>here</a></p>
 <h2>Main functions include:</h2>
 <ul>
     <li>Account management</li>
